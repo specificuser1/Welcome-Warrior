@@ -129,7 +129,7 @@ async def on_voice_state_update(member, before, after):
         category = discord.utils.get(member.guild.categories, id=TEMP_VC_CATEGORY)
 
         vc = await member.guild.create_voice_channel(
-            name=f"{member.name}'s Room",
+            name=f"{member.name} Room",
             category=category,
             user_limit=DEFAULT_LIMIT
         )
@@ -281,7 +281,7 @@ async def send_panel(guild, vc, owner):
     view = VCPanel(vc, owner)
 
     # send panel in welcome channel (acts as VC chat)
-    channel = guild.get_channel(WELCOME_CHANNEL)
+    channel = guild.get_channel(1431752583147688087)
 
     if channel:
         await channel.send(embed=embed, view=view)
