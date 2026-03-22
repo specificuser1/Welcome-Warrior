@@ -24,14 +24,14 @@ async def on_member_join(member):
         return
     
     embed = discord.Embed(
-        title="Welcome to the Server!",
+        title="New Member!",
         description=f"Welcome {member.mention} to **{member.guild.name}**!",
-        color=discord.Color.green()
+        color=discord.Color.red()
     )
 
     embed.add_field(
         name="> Member Count",
-        value=f"{member.guild.member_count}",
+        value=f"> - ``{member.guild.member_count}``",
         inline=True
     )
 
@@ -50,14 +50,14 @@ async def arrior(ctx):
 
     
     embed = discord.Embed(
-        title="Welcome to the Server!",
+        title="New Member!",
         description=f"Welcome {member.mention} to **{ctx.guild.name}**!",
-        color=discord.Color.green()
+        color=discord.Color.red()
     )
 
     embed.add_field(
-        name="> Member Count ``{ctr.guild.member_count}``",
-        value=f"``{ctx.guild.member_count}``",
+        name="> Member Count ",
+        value=f"> - ``{ctx.guild.member_count}``",
         inline=True
     )
 
