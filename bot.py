@@ -6,7 +6,7 @@ intents = discord.Intents.default()
 intents.members = True
 intents.message_content = True
 
-bot = commands.Bot(command_prefix="!", intents=intents)
+bot = commands.Bot(command_prefix="w", intents=intents)
 
 
 @bot.event
@@ -22,16 +22,16 @@ async def on_member_join(member):
 
     if channel is None:
         return
-
+    {member.mention}
     embed = discord.Embed(
-        title="🎉 Welcome to the Server!",
+        title="Welcome to the Server!",
         description=f"Welcome {member.mention} to **{member.guild.name}**!",
         color=discord.Color.green()
     )
 
     embed.add_field(
-        name="👤 Member Count",
-        value=f"{member.guild.member_count}",
+        name="> Member Count",
+        value=f"''{member.guild.member_count}''",
         inline=True
     )
 
@@ -43,20 +43,20 @@ async def on_member_join(member):
 
 # Test command
 @bot.command()
-async def testwelcome(ctx):
+async def arrior(ctx):
 
     member = ctx.author
     channel = bot.get_channel(WELCOME_CHANNEL_ID)
 
     embed = discord.Embed(
-        title="🎉 Welcome to the Server!",
+        title="Welcome to the Server!",
         description=f"Welcome {member.mention} to **{ctx.guild.name}**!",
         color=discord.Color.green()
     )
 
     embed.add_field(
-        name="👤 Member Count",
-        value=f"{ctx.guild.member_count}",
+        name="> Member Count",
+        value=f"''{ctx.guild.member_count}''",
         inline=True
     )
 
