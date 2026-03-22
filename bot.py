@@ -176,7 +176,7 @@ class VCPanel(discord.ui.View):
             discord.SelectOption(label="Set User Limit", emoji="🎚"),
             discord.SelectOption(label="Lock VC", emoji="🔒"),
             discord.SelectOption(label="Unlock VC", emoji="🔓"),
-            discord.SelectOption(label="Rename VC", emoji="✏️")
+            discord.SelectOption(label="Rename VC", emoji="✏️"),
             discord.SelectOption(label="Hide VC", emoji="👁"),
             discord.SelectOption(label="Unhide VC", emoji="👁‍🗨")
         ]
