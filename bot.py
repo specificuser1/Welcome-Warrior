@@ -74,7 +74,7 @@ async def on_member_join(member):
 async def testwelcome(ctx):
 
     member = ctx.author
-    channel = bot.get_channel(WELCOME_CHANNEL_ID)
+    channel = bot.get_channel(WELCOME_CHANNEL)
 
     embed = discord.Embed(
         title="New Member!",
