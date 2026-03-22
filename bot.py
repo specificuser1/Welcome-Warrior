@@ -238,17 +238,6 @@ class VCPanel(discord.ui.View):
 
             await interaction.response.send_message("🔓 VC Unlocked")
 
-
-        elif choice == "Rename VC":
-
-            new_name = f"{interaction.user.name} Room"
-
-            await self.vc.edit(name=new_name)
-
-            await interaction.response.send_message(
-                f"✏️ VC renamed to **{new_name}**"
-            )
-
         elif choice == "Hide VC":
 
             await self.vc.set_permissions(
@@ -267,6 +256,17 @@ class VCPanel(discord.ui.View):
             )
 
             await interaction.response.send_message("👁‍🗨 VC Visible")
+
+
+        elif choice == "Rename VC":
+
+            new_name = f"{interaction.user.name} Room"
+
+            await self.vc.edit(name=new_name)
+
+            await interaction.response.send_message(
+                f"✏️ VC renamed to **{new_name}**"
+            )
 
 
 # SEND CONTROL PANEL
