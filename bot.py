@@ -1,71 +1,69 @@
 import discord
 from discord.ext import commands
 from config import TOKEN, WELCOME_CHANNEL_ID
-from welcome_card import generate_card
-from stats import stats
-from anti_raid import antiraid
 
-intents = discord.Intents.all()
+intents = discord.Intents.default()
+intents.members = True
+intents.message_content = True
 
 bot = commands.Bot(command_prefix="!", intents=intents)
 
 
 @bot.event
 async def on_ready():
-    print(f"Bot online: {bot.user}")
+    print(f"Logged in as {bot.user}")
 
 
+# Welcome message when user joins
 @bot.event
 async def on_member_join(member):
 
-    if antiraid.check():
-        print("⚠ RAID DETECTED")
-        return
-
-    stats.add_join()
-
     channel = bot.get_channel(WELCOME_CHANNEL_ID)
 
-    avatar = member.avatar.url if member.avatar else member.default_avatar.url
+    if channel is None:
+        return
 
-    img = generate_card(member.name, avatar, member.guild.member_count)
-
-    file = discord.File(img)
-
-    await channel.send(
-        content=f"Welcome {member.mention}",
-        file=file
+    embed = discord.Embed(
+        title="🎉 Welcome to the Server!",
+        description=f"Welcome {member.mention} to **{member.guild.name}**!",
+        color=discord.Color.green()
     )
 
+    embed.add_field(
+        name="👤 Member Count",
+        value=f"{member.guild.member_count}",
+        inline=True
+    )
 
+    embed.set_thumbnail(url=member.avatar.url if member.avatar else member.default_avatar.url)
+    embed.set_footer(text="Enjoy your stay!")
+
+    await channel.send(embed=embed)
+
+
+# Test command
 @bot.command()
 async def testwelcome(ctx):
 
     member = ctx.author
-
-    avatar = member.avatar.url if member.avatar else member.default_avatar.url
-
-    img = generate_card(member.name, avatar, ctx.guild.member_count)
-
-    file = discord.File(img)
-
-    await ctx.send(file=file)
-
-
-@bot.command()
-async def joinstats(ctx):
-
-    data = stats.get_stats()
+    channel = bot.get_channel(WELCOME_CHANNEL_ID)
 
     embed = discord.Embed(
-        title="Join Statistics",
-        color=discord.Color.blue()
+        title="🎉 Welcome to the Server!",
+        description=f"Welcome {member.mention} to **{ctx.guild.name}**!",
+        color=discord.Color.green()
     )
 
-    embed.add_field(name="Total Joins", value=data["total"])
-    embed.add_field(name="Today", value=data["today"])
+    embed.add_field(
+        name="👤 Member Count",
+        value=f"{ctx.guild.member_count}",
+        inline=True
+    )
 
-    await ctx.send(embed=embed)
+    embed.set_thumbnail(url=member.avatar.url if member.avatar else member.default_avatar.url)
+    embed.set_footer(text="Test Welcome Message")
+
+    await channel.send(embed=embed)
 
 
 bot.run(TOKEN)
