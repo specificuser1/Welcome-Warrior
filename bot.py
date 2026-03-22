@@ -31,7 +31,7 @@ async def on_member_join(member):
 
     embed.add_field(
         name="> Member Count",
-        value=f"''{member.guild.member_count}''",
+        value=f"{member.guild.member_count}",
         inline=True
     )
 
@@ -48,6 +48,7 @@ async def arrior(ctx):
     member = ctx.author
     channel = bot.get_channel(WELCOME_CHANNEL_ID)
 
+    {ctx.mention}
     embed = discord.Embed(
         title="Welcome to the Server!",
         description=f"Welcome {member.mention} to **{ctx.guild.name}**!",
@@ -55,8 +56,8 @@ async def arrior(ctx):
     )
 
     embed.add_field(
-        name="> Member Count",
-        value=f"''{ctx.guild.member_count}''",
+        name="> Member Count ``{ctr.guild.member_count}``",
+        value=f"``{ctx.guild.member_count}``",
         inline=True
     )
 
