@@ -49,6 +49,8 @@ async def on_ready():
 @bot.event
 async def on_member_join(member):
 
+    channel = bot.get_channel(WELCOME_CHANNEL)
+
     if channel is None:
         return
 
@@ -59,41 +61,39 @@ async def on_member_join(member):
     )
 
     embed.add_field(
-        name="> Member Count",
-        value=f"> - ``{member.guild.member_count}``",
-        inline=True
+        name="Member Count",
+        value=f"{member.guild.member_count}"
     )
 
-    embed.set_thumbnail(url=member.avatar.url if member.avatar else member.default_avatar.url)
+    embed.set_thumbnail(url=member.display_avatar.url)
     embed.set_footer(text="Enjoy your stay!")
 
     await channel.send(embed=embed)
 
-# Welcome Test Message
+
+# TEST WELCOME
 @bot.command()
 async def testwelcome(ctx):
 
-    member = ctx.author
     channel = bot.get_channel(WELCOME_CHANNEL)
 
     embed = discord.Embed(
         title="New Member!",
-        description=f"{member.mention} Joined **{ctx.guild.name}**!",
+        description=f"{ctx.author.mention} Joined **{ctx.guild.name}**",
         color=discord.Color.red()
     )
 
     embed.add_field(
-        name="> Member Count",
-        value=f"> - ``{ctx.guild.member_count}``",
-        inline=True
+        name="Member Count",
+        value=f"{ctx.guild.member_count}"
     )
 
-    embed.set_thumbnail(url=member.avatar.url if member.avatar else member.default_avatar.url)
-    embed.set_footer(text="Test Welcome Message")
+    embed.set_thumbnail(url=ctx.author.display_avatar.url)
 
     await channel.send(embed=embed)
 
-# AUTO BITRATE SYSTEM
+
+# AUTO BITRATE
 async def optimize_bitrate(vc):
 
     users = len(vc.members)
@@ -115,7 +115,6 @@ async def optimize_bitrate(vc):
 @bot.event
 async def on_voice_state_update(member, before, after):
 
-    # create VC
     if after.channel and after.channel.id == TEMP_VC_CHANNEL:
 
         now = time.time()
@@ -142,9 +141,8 @@ async def on_voice_state_update(member, before, after):
 
         await member.move_to(vc)
 
-        await send_panel(vc, member)
+        await send_panel(member.guild, vc, member)
 
-    # delete VC
     if before.channel:
 
         if before.channel.id in temp_vc:
@@ -152,7 +150,6 @@ async def on_voice_state_update(member, before, after):
             if len(before.channel.members) == 0:
 
                 vc_stats["active"] -= 1
-
                 del temp_vc[before.channel.id]
 
                 await before.channel.delete()
@@ -172,18 +169,19 @@ class VCPanel(discord.ui.View):
         self.vc = vc
         self.owner = owner
 
-
     @discord.ui.select(
         placeholder="VC Controls",
         options=[
             discord.SelectOption(label="Transfer Owner", emoji="👑"),
             discord.SelectOption(label="Set User Limit", emoji="🎚"),
-            discord.SelectOption(label="Kick Member", emoji="👢"),
+            discord.SelectOption(label="Lock VC", emoji="🔒"),
+            discord.SelectOption(label="Unlock VC", emoji="🔓"),
+            discord.SelectOption(label="Rename VC", emoji="✏️")
             discord.SelectOption(label="Hide VC", emoji="👁"),
             discord.SelectOption(label="Unhide VC", emoji="👁‍🗨")
         ]
     )
-    async def select_callback(self, interaction, select):
+    async def select_callback(self, interaction: discord.Interaction, select):
 
         if interaction.user.id != self.owner.id:
             await interaction.response.send_message(
@@ -198,9 +196,7 @@ class VCPanel(discord.ui.View):
             members = [m for m in self.vc.members if m.id != self.owner.id]
 
             if not members:
-                await interaction.response.send_message(
-                    "No member available."
-                )
+                await interaction.response.send_message("No member available.")
                 return
 
             new_owner = members[0]
@@ -223,19 +219,35 @@ class VCPanel(discord.ui.View):
             )
 
 
-        elif choice == "Kick Member":
+        elif choice == "Lock VC":
 
-            for m in self.vc.members:
+            await self.vc.set_permissions(
+                interaction.guild.default_role,
+                connect=False
+            )
 
-                if m.id != self.owner.id:
-                    await m.move_to(None)
-                    await interaction.response.send_message(
-                        f"👢 {m.name} kicked"
-                    )
-                    return
+            await interaction.response.send_message("🔒 VC Locked")
 
-            await interaction.response.send_message("No member to kick.")
 
+        elif choice == "Unlock VC":
+
+            await self.vc.set_permissions(
+                interaction.guild.default_role,
+                connect=True
+            )
+
+            await interaction.response.send_message("🔓 VC Unlocked")
+
+
+        elif choice == "Rename VC":
+
+            new_name = f"{interaction.user.name} Room"
+
+            await self.vc.edit(name=new_name)
+
+            await interaction.response.send_message(
+                f"✏️ VC renamed to **{new_name}**"
+            )
 
         elif choice == "Hide VC":
 
@@ -257,43 +269,36 @@ class VCPanel(discord.ui.View):
             await interaction.response.send_message("👁‍🗨 VC Visible")
 
 
-# SEND PANEL
-async def send_panel(vc, owner):
+# SEND CONTROL PANEL
+async def send_panel(guild, vc, owner):
 
     embed = discord.Embed(
-        title="🎛 VC Control Panel",
-        description=f"Owner: {owner.mention}",
-        color=discord.Color.blurple()
+        title="VC Control Panel",
+        description=f"VC Owner: {owner.mention}",
+        color=discord.Color.red()
     )
 
     view = VCPanel(vc, owner)
 
-    await vc.guild.system_channel.send(embed=embed, view=view)
+    # send panel in welcome channel (acts as VC chat)
+    channel = guild.get_channel(WELCOME_CHANNEL)
+
+    if channel:
+        await channel.send(embed=embed, view=view)
 
 
-# ADVANCED ANALYTICS
+# VC ANALYTICS
 @bot.command()
 async def vcanalytics(ctx):
 
     embed = discord.Embed(
-        title="📊 Voice Channel Analytics",
+        title="Voice Channel Analytics",
         color=discord.Color.gold()
     )
 
-    embed.add_field(
-        name="VC Created",
-        value=vc_stats["created"]
-    )
-
-    embed.add_field(
-        name="Active VC",
-        value=vc_stats["active"]
-    )
-
-    embed.add_field(
-        name="Peak Users",
-        value=vc_stats["peak_users"]
-    )
+    embed.add_field(name="VC Created", value=vc_stats["created"])
+    embed.add_field(name="Active VC", value=vc_stats["active"])
+    embed.add_field(name="Peak Users", value=vc_stats["peak_users"])
 
     await ctx.send(embed=embed)
 
