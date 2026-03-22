@@ -22,7 +22,7 @@ async def on_member_join(member):
 
     if channel is None:
         return
-    {member.mention}
+    
     embed = discord.Embed(
         title="Welcome to the Server!",
         description=f"Welcome {member.mention} to **{member.guild.name}**!",
@@ -48,7 +48,7 @@ async def arrior(ctx):
     member = ctx.author
     channel = bot.get_channel(WELCOME_CHANNEL_ID)
 
-    {ctx.mention}
+    
     embed = discord.Embed(
         title="Welcome to the Server!",
         description=f"Welcome {member.mention} to **{ctx.guild.name}**!",
